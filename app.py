@@ -21,7 +21,7 @@ method = st.selectbox('Wählen Sie die Methode', ['One-Hot', 'Begriffs-Häufigke
 
 st.write('''Folgende Optionen betreffen die Aufbereitung des Textes for der entsprechenden
          numerischen Kodierung:''')
-stripaccents = st.checkbox('Entfernen von Akzenten (z.B. é)')
+stripaccents = st.checkbox('Entfernen von Akzenten von Buchstaben (z.B. é->e)')
 lower = st.checkbox('Normalisierung auf Kleinbuchstaben')
 
 if stripaccents:

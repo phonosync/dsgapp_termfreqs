@@ -1,20 +1,28 @@
 import streamlit as st
 import io
-import os
-import zipfile
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 corpus = []
 doc_index = []
 
-st.title("Term frequencies from documents")
+st.title("Kodierung einer Datenmatrix aus Textdokumenten")
+st.write('''Die Matrix wird als xlsx-Datei ausgegeben: 1 Spalte pro Term im Vokabular,
+         1 Zeile pro Dokument. Die erste Zeile enthält die Terme im Vokabular, die erste
+         Spalte enthält die ursprünglichen Dateinamen der Dokumente.''')
 
 strip_accents = None
 lowercase = False
 
-stripaccents = st.checkbox('Strip accents')
-lower = st.checkbox('Convert to lowercase')
+method = st.selectbox('Wählen Sie die Methode', ['One-Hot', 'Begriffs-Häufigkeit', 
+                                                 'Tf-idf']
+                     )
+
+st.write('''Folgende Optionen betreffen die Aufbereitung des Textes for der entsprechenden
+         numerischen Kodierung:''')
+stripaccents = st.checkbox('Entfernen von Akzenten (z.B. é)')
+lower = st.checkbox('Normalisierung auf Kleinbuchstaben')
 
 if stripaccents:
     strip_accents = 'unicode'
@@ -22,7 +30,8 @@ if stripaccents:
 if lower:
     lowercase = True
 
-inp_files = st.file_uploader("Choose one or more txt-files", accept_multiple_files=True)
+inp_files = st.file_uploader("Wählen Sie eine oder mehrere txt-Dateien",
+                             accept_multiple_files=True)
 for inp_file in inp_files:
     stringio = io.StringIO(inp_file.getvalue().decode("utf-8"))
     # To read file as string:
@@ -31,7 +40,16 @@ for inp_file in inp_files:
 
 if len(corpus) >0:
 
-    vectorizer = CountVectorizer(lowercase=lowercase, strip_accents=strip_accents)
+    if method == 'One-Hot':
+        vectorizer = CountVectorizer(lowercase=lowercase, strip_accents=strip_accents)
+
+    elif method == 'Begriffs-Häufigkeit':
+        vectorizer = CountVectorizer(lowercase=lowercase, strip_accents=strip_accents,
+                                     binary=True)
+    elif method == 'Tf-idf':
+        vectorizer = TfidfVectorizer(lowercase=lowercase, strip_accents=strip_accents)
+    else:
+        vectorizer = None
 
     X = vectorizer.fit_transform(corpus)
 
@@ -42,7 +60,7 @@ if len(corpus) >0:
         df.to_excel(writer, sheet_name='Term counts', index=True)
 
     st.download_button(
-        label="Download term counts as xlsx",
+        label="xlsx-Datei herunterladen",
         data=buffer,
         file_name='term_counts.xlsx',
         mime='application/vnd.ms-excel',

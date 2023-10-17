@@ -41,11 +41,12 @@ for inp_file in inp_files:
 if len(corpus) >0:
 
     if method == 'One-Hot':
-        vectorizer = CountVectorizer(lowercase=lowercase, strip_accents=strip_accents)
-
-    elif method == 'Begriffs-Häufigkeit':
         vectorizer = CountVectorizer(lowercase=lowercase, strip_accents=strip_accents,
                                      binary=True)
+
+    elif method == 'Begriffs-Häufigkeit':
+        vectorizer = CountVectorizer(lowercase=lowercase, strip_accents=strip_accents)
+        
     elif method == 'Tf-idf':
         vectorizer = TfidfVectorizer(lowercase=lowercase, strip_accents=strip_accents)
     else:

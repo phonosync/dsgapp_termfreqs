@@ -15,11 +15,15 @@ st.write('''Die Matrix wird als xlsx-Datei ausgegeben: 1 Spalte pro Term im Voka
 strip_accents = None
 lowercase = False
 
-method = st.selectbox('Wählen Sie die Methode', ['One-Hot', 'Begriffs-Häufigkeit', 
-                                                 'Tf-idf']
+method = st.selectbox('Wählen Sie die Kodierungsmethode:', ['One-Hot', 
+                                                            'Begriffs-Häufigkeit',
+                                                            'Tf-idf'
+                                                            ]
                      )
 
-st.write('''Folgende Optionen betreffen die Aufbereitung des Textes for der entsprechenden
+st.write('''Wörter bestehend aus weniger als zwei Buchstaben werden ignoriert. Satzzeichen
+         werden immer als Trennzeichen und nicht als Teil von Wörtern behandelt.\\
+         Folgende Optionen betreffen die weitere Aufbereitung des Textes vor der entsprechenden
          numerischen Kodierung:''')
 stripaccents = st.checkbox('Entfernen von Akzenten von Buchstaben (z.B. é->e)')
 lower = st.checkbox('Normalisierung auf Kleinbuchstaben')
@@ -29,6 +33,11 @@ if stripaccents:
 
 if lower:
     lowercase = True
+
+max_features = st.number_input(label="""Beschränkung des Vokabulars auf eine Maximalzahl der häufigsten Wörter:""",
+                               value=None, min_value=1,
+                               placeholder="""Geben Sie eine Zahl ein... Wenn leer, werden alle identifizierten Wörter berücksichtigt""")
+#  If None, will initialize empty and return None until the user provides input.
 
 inp_files = st.file_uploader("Wählen Sie eine oder mehrere txt-Dateien",
                              accept_multiple_files=True)
@@ -42,13 +51,15 @@ if len(corpus) >0:
 
     if method == 'One-Hot':
         vectorizer = CountVectorizer(lowercase=lowercase, strip_accents=strip_accents,
-                                     binary=True)
+                                     binary=True, max_features=max_features)
 
     elif method == 'Begriffs-Häufigkeit':
-        vectorizer = CountVectorizer(lowercase=lowercase, strip_accents=strip_accents)
+        vectorizer = CountVectorizer(lowercase=lowercase, strip_accents=strip_accents,
+                                     max_features=max_features)
         
     elif method == 'Tf-idf':
-        vectorizer = TfidfVectorizer(lowercase=lowercase, strip_accents=strip_accents)
+        vectorizer = TfidfVectorizer(lowercase=lowercase, strip_accents=strip_accents,
+                                     max_features=max_features)
     else:
         vectorizer = None
 
